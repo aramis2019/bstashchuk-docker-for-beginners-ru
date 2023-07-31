@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - '3000:3000'
+    depends_on:
+      - api
+  api:
+    build: ./api
+    restart: always
+    ports:
+      - '5555:5000'
+    depends_on:
+      mysql:
+        condition: service_healthy
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: time_db
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+  adminer:
+    restart: always
+    image: adminer
+    ports:
+      - '8888:8080'
+    depends_on:
+      - mysql
